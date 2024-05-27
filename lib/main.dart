@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'recipes.dart';
 
 class Category {
   int id;
@@ -39,37 +40,51 @@ void main() {
   runApp(
     MaterialApp(
       home: Scaffold(
-        body: GradientContainer(),
+        body: MainScreen(),
       ),
+      routes: {'/recipes': (context) => RecipesScreen()},
     ),
   );
 }
 
-class GradientContainer extends StatelessWidget {
-  const GradientContainer({super.key});
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
 
   @override
   Widget build(context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color.fromARGB(255, 173, 58, 183),
-            Color.fromARGB(255, 58, 58, 183),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Center(
-        child: Text(
-          "BestRecipes!",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 28,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 173, 58, 183),
+              Color.fromARGB(255, 58, 58, 183),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-      ),
-    );
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Center(
+              child: Text(
+                "BestRecipes!",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                ),
+              ),
+            ),
+            new ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RecipesScreen()),
+                );
+              },
+              child: Text('Go to Recipes'),
+            ),
+          ],
+        ));
   }
 }
