@@ -1,22 +1,22 @@
 [
   {
     "id": "cd6541c8-9ae2-4e44-8608-3e78b58d3478",
-    "name": "Breakfast"
+    "title": "Breakfast"
   },
   {
     "id": "2dc5bb9d-6840-4d0d-be0e-abf08b9d0e99",
-    "name": "Lunch"
+    "title": "Lunch"
   },
   {
     "id": "09f8af75-088b-4c23-8dcc-a0565e7774c0",
-    "name": "Dinner"
+    "title": "Dinner"
   },
   {
     "id": "490b0bee-c8e8-413f-8b54-35c5a7852d00",
-    "name": "Snack"
+    "title": "Snack"
   },
   {
     "id": "4957337a-c94c-4179-9a8e-da038ccfb68d",
-    "name": "Desert"
+    "title": "Desert"
   }
 ]

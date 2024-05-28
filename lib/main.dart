@@ -1,6 +1,12 @@
-import 'dart:io';
+import 'dart:convert';
+import 'package:universal_io/io.dart';
 import 'package:flutter/material.dart';
-import 'recipes.dart';
+import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
+
+void main() {
+  runApp(const MyApp());
+}
 
 class Category {
   String id;
@@ -9,10 +15,14 @@ class Category {
   Category(this.id, this.title);
 
   factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      json['id'],
-      json['title'],
-    );
+    return Category(json['id'], json['title']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+    };
   }
 }
 
@@ -23,10 +33,14 @@ class Tag {
   Tag(this.id, this.title);
 
   factory Tag.fromJson(Map<String, dynamic> json) {
-    return Tag(
-      json['id'],
-      json['title'],
-    );
+    return Tag(json['id'], json['title']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+    };
   }
 }
 
@@ -37,10 +51,14 @@ class Ingredient {
   Ingredient(this.id, this.title);
 
   factory Ingredient.fromJson(Map<String, dynamic> json) {
-    return Ingredient(
-      json['id'],
-      json['title'],
-    );
+    return Ingredient(json['id'], json['title']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+    };
   }
 }
 
@@ -62,64 +80,476 @@ class Recipe {
       json['title'],
       json['image'],
       json['instructions'],
-      (json['ingredients'] as List<dynamic>)
-          .map((e) => Ingredient.fromJson(e))
-          .toList(),
-      (json['tags'] as List<dynamic>).map((e) => Tag.fromJson(e)).toList(),
-      Category.fromJson(json['category']),
+      json['ingredients'],
+      json['tags'],
+      json['category'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'image': image,
+      'instructions': instructions,
+      'ingredients':
+          ingredients.map((ingredient) => ingredient.toJson()).toList(),
+      'tags': tags.map((tag) => tag.toJson()).toList(),
+      'category': category.toJson(),
+    };
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Recipes App',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const RecipesScreen(title: 'Recipes'),
     );
   }
 }
 
-void main() {
-  runApp(
-    MaterialApp(
-      home: Scaffold(
-        body: MainScreen(),
-      ),
-      routes: {'/recipes': (context) => RecipesScreen()},
-    ),
-  );
-}
-
-class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+class RecipesScreen extends StatefulWidget {
+  const RecipesScreen({super.key, required this.title});
+  final String title;
 
   @override
-  Widget build(context) {
-    return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 173, 58, 183),
-              Color.fromARGB(255, 58, 58, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  State<RecipesScreen> createState() => _RecipesScreenState();
+}
+
+class _RecipesScreenState extends State<RecipesScreen> {
+  final List<Recipe> _recipes = [];
+
+  Future<void> _loadRecipes() async {
+    print('Loading recipes');
+    String jsonString = await rootBundle.loadString('assets/data/recipes.json');
+    List<dynamic> json = jsonDecode(jsonString);
+    for (var item in json) {
+      try {
+        final id = item['id'];
+        final title = item['title'];
+        final image = item['image'];
+        final instructions = item['instructions'];
+        Category category =
+            Category(item['category']['id'], item['category']['title']);
+        List<Ingredient> ingredients =
+            item['ingredients'].map<Ingredient>((ingredient) {
+          return Ingredient(ingredient['id'], ingredient['title']);
+        }).toList();
+        List<Tag> tags = item['tags'].map<Tag>((tag) {
+          return Tag(tag['id'], tag['title']);
+        }).toList();
+
+        Recipe recipe =
+            Recipe(id, title, image, instructions, ingredients, tags, category);
+        _recipes.add(recipe);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    setState(() {});
+
+    print('Recipes loaded');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecipes();
+  }
+
+  void printRecipes() {
+    for (var recipe in _recipes) {
+      print(recipe.title);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            const Center(
-              child: Text(
-                "BestRecipes!",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                ),
+            Expanded(
+              child: ListView(
+                children: _recipes.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeDetailsScreen(recipe: item),
+                              ),
+                            );
+                          },
+                          child: const Text('View'),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             ),
-            new ElevatedButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RecipesScreen()),
+                  MaterialPageRoute(
+                    // pass recipe list to AddRecipeScreen
+                    builder: (context) => const AddRecipeScreen(),
+                  ),
                 );
               },
-              child: Text('Go to Recipes'),
+              child: const Text('Add Recipe'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class RecipeDetailsScreen extends StatelessWidget {
+  final Recipe recipe;
+
+  const RecipeDetailsScreen({super.key, required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(recipe.title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.asset('/assets/images/${recipe.image}'),
+            const SizedBox(height: 10),
+            const Text(
+              'Ingredients',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: recipe.ingredients.map((ingredient) {
+                return Text(ingredient.title);
+              }).toList(),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Instructions',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 10),
+            Text(recipe.instructions),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AddRecipeScreen extends StatefulWidget {
+  const AddRecipeScreen({super.key});
+
+  @override
+  State<AddRecipeScreen> createState() => _AddRecipeScreenState();
+}
+
+class _AddRecipeScreenState extends State<AddRecipeScreen> {
+  final List<Recipe> _recipes = [];
+  final List<Ingredient> _ingredients = [];
+  final List<Tag> _tags = [];
+  final List<Category> _categories = [];
+  final List<Ingredient> _selectedIngredients = [];
+  final List<Tag> _selectedTags = [];
+  Category? _selectedCategory;
+  String _title = '';
+  String _image = '';
+  String _instructions = '';
+  late TextEditingController _titleController;
+  late TextEditingController _imageController;
+  late TextEditingController _instructionsController;
+
+  var uuid = const Uuid();
+
+  Future<void> _loadIngredients() async {
+    print('Loading ingredients');
+    String jsonString =
+        await rootBundle.loadString('assets/data/ingredients.json');
+    List<dynamic> json = jsonDecode(jsonString);
+    for (var item in json) {
+      try {
+        final id = item['id'];
+        final title = item['title'];
+
+        Ingredient ingredient = Ingredient(id, title);
+        _ingredients.add(ingredient);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    setState(() {});
+
+    print('Ingredients loaded');
+  }
+
+  Future<void> _loadTags() async {
+    print('Loading tags');
+    String jsonString = await rootBundle.loadString('assets/data/tags.json');
+    List<dynamic> json = jsonDecode(jsonString);
+    for (var item in json) {
+      try {
+        final id = item['id'];
+        final title = item['title'];
+        Tag tag = Tag(id, title);
+        _tags.add(tag);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    setState(() {});
+
+    print('Tags loaded');
+  }
+
+  Future<void> _loadCategories() async {
+    print('Loading categories');
+    String jsonString =
+        await rootBundle.loadString('assets/data/categories.json');
+    List<dynamic> json = jsonDecode(jsonString);
+    for (var item in json) {
+      try {
+        final id = item['id'];
+        final title = item['title'];
+        Category category = Category(id, title);
+        _categories.add(category);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    setState(() {});
+
+    print('Categories loaded');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIngredients();
+    _loadTags();
+    _loadCategories();
+    _titleController = TextEditingController(text: _title);
+    _imageController = TextEditingController(text: _image);
+    _instructionsController = TextEditingController(text: _instructions);
+  }
+
+  void printRecipes() {
+    for (var recipe in _recipes) {
+      print(recipe.title);
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _imageController.dispose();
+    _instructionsController.dispose();
+    super.dispose();
+  }
+
+  void _addRecipe() {
+    try {
+      var id = const Uuid().v4();
+
+      try {
+        final recipe = Recipe(id, _title, _image, _instructions,
+                _selectedIngredients, _selectedTags, _selectedCategory!)
+            .toJson();
+
+        final file = File(
+            '/assets/data/recipes.json'); // Replace with the actual path to your JSON file
+
+        file.writeAsStringSync('$recipe\n', mode: FileMode.append);
+      } catch (e) {
+        print(e);
+        print('Failed to write to json file');
+      }
+
+      setState(() {
+        _titleController.clear();
+        _imageController.clear();
+        _instructionsController.clear();
+        _title = '';
+        _image = '';
+        _instructions = '';
+        _selectedCategory = null;
+        _selectedIngredients.clear();
+        _selectedTags.clear();
+      });
+
+      Navigator.pop(context);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text('Add Recipe'),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  decoration:
+                      const InputDecoration(labelText: 'New recipe Title'),
+                  onChanged: (text) {
+                    setState(() {
+                      _title = text;
+                    });
+                  },
+                  controller: _titleController,
+                ),
+                TextField(
+                  decoration:
+                      const InputDecoration(labelText: 'New recipe image'),
+                  onChanged: (text) {
+                    setState(() {
+                      _image = text;
+                    });
+                  },
+                  controller: _imageController,
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                      labelText: 'New recipe instructions'),
+                  onChanged: (text) {
+                    setState(() {
+                      _instructions = text;
+                    });
+                  },
+                  controller: _instructionsController,
+                ),
+                DropdownButton<Category>(
+                  value: _selectedCategory,
+                  items: _categories.map((category) {
+                    return DropdownMenuItem<Category>(
+                      value: category,
+                      child: Text(category.title),
+                    );
+                  }).toList(),
+                  onChanged: (Category? value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Tags',
+                  style: TextStyle(fontSize: 20),
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  children: _tags.map((tag) {
+                    return Row(
+                      children: [
+                        Checkbox(
+                            value: _selectedTags.contains(tag),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  _selectedTags.add(tag);
+                                } else {
+                                  _selectedTags.remove(tag);
+                                }
+                              });
+                            }),
+                        Text(tag.title),
+                      ],
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Ingredients',
+                  style: TextStyle(fontSize: 20),
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  children: _ingredients.map((ingredient) {
+                    return Row(
+                      children: [
+                        Checkbox(
+                            value: _selectedIngredients.contains(ingredient),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  _selectedIngredients.add(ingredient);
+                                } else {
+                                  _selectedIngredients.remove(ingredient);
+                                }
+                              });
+                            }),
+                        Text(ingredient.title),
+                      ],
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    _addRecipe();
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
+          ),
         ));
   }
 }

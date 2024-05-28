@@ -1,75 +1,74 @@
 [
-    {
-      "id": "470b0ab5-cd03-4d64-801f-f5c8cc136a4a",
-      "title": "The Great cheeseburger",
-      "instruction": "Cook the beef patty on a grill, add cheese, lettuce, tomato, and onion. Serve on a bun.",
-      "ingredients": [
-        {
-          "id": "af3fb195-32d6-4d5e-8314-be4c21cc088d",
-          "name": "Beef"
-        },
-        {
-          "id": "a362b2ba-febd-48b4-8ae4-74e9a8399d6",
-          "name": "Cheese"
-        },
-        {
-          "id": "029fa47b-9c9c-41be-b330-97d9c447aa49",
-          "name": "Lettuce"
-        },
-        {
-          "id": "078b68d6-c2d7-4914-9c6e-8ca1558f8bf2",
-          "name": "Tomato"
-        },
-        {
-          "id": "d2d50ac5-2b12-47b2-abb9-4298ea3b4450",
-          "name": "Onion"
-        }
-      ],
-      "tags": [
-        {
-          "id": "11f0d2cc-d0ca-4adc-90f4-160a8e8c43ee",
-          "title": "Meat"
-        }
-      ],
-      "category": {
-        "id": "09f8af75-088b-4c23-8dcc-a0565e7774c0",
-        "name": "Dinner"
+  {
+    "id": "470b0ab5-cd03-4d64-801f-f5c8cc136a4a",
+    "title": "The Great cheeseburger",
+    "instructions": "Cook the beef patty on a grill, add cheese, lettuce, tomato, and onion. Serve on a bun.",
+    "ingredients": [
+      {
+        "id": "af3fb195-32d6-4d5e-8314-be4c21cc088d",
+        "title": "Beef"
       },
-      "image": ""
+      {
+        "id": "a362b2ba-febd-48b4-8ae4-74e9a8399d6",
+        "title": "Cheese"
+      },
+      {
+        "id": "029fa47b-9c9c-41be-b330-97d9c447aa49",
+        "title": "Lettuce"
+      },
+      {
+        "id": "078b68d6-c2d7-4914-9c6e-8ca1558f8bf2",
+        "title": "Tomato"
+      },
+      {
+        "id": "d2d50ac5-2b12-47b2-abb9-4298ea3b4450",
+        "title": "Onion"
+      }
+    ],
+    "tags": [
+      {
+        "id": "11f0d2cc-d0ca-4adc-90f4-160a8e8c43ee",
+        "title": "Meat"
+      }
+    ],
+    "category": {
+      "id": "09f8af75-088b-4c23-8dcc-a0565e7774c0",
+      "title": "Dinner"
     },
-    {
-      "id": "b595444c-6d5a-4bfa-bedf-394e06275fda",
-      "title": "Cod with lemon",
-      "instruction": "Cook the fish in a pan, add lemon. Serve with rice.",
-      "ingredients": [
-        {
-          "id": "27ec3184-deaa-4822-b5b5-f5fa86982cd7",
-          "name": "Fish"
-        },
-        {
-          "id": "99e31a05-3f00-42ec-9df8-4f27944bb8f0",
-          "name": "Lemon"
-        },
-        {
-          "id": "5f8c5544-25cd-4e18-aa02-4925ea724b46",
-          "name": "Rice"
-        }
-      ],
-      "tags": [
-        {
-          "id": "06d98ba2-7756-4c41-9e89-f2f9131154af",
-          "title": "Dairy Free"
-        },
-        {
-          "id": "925b3cee-7aab-45fb-80c9-8d5ba26b8a57",
-          "title": "Fish"
-        }
-      ],
-      "category":   {
-        "id": "2dc5bb9d-6840-4d0d-be0e-abf08b9d0e99",
-        "name": "Lunch"
+    "image": "cheeseburger.avif"
+  },
+  {
+    "id": "b595444c-6d5a-4bfa-bedf-394e06275fda",
+    "title": "Cod with lemon",
+    "instructions": "Cook the fish in a pan, add lemon. Serve with rice.",
+    "ingredients": [
+      {
+        "id": "27ec3184-deaa-4822-b5b5-f5fa86982cd7",
+        "title": "Fish"
       },
-      "image": ""
-    }
-  ]
-  
+      {
+        "id": "99e31a05-3f00-42ec-9df8-4f27944bb8f0",
+        "title": "Lemon"
+      },
+      {
+        "id": "5f8c5544-25cd-4e18-aa02-4925ea724b46",
+        "title": "Rice"
+      }
+    ],
+    "tags": [
+      {
+        "id": "06d98ba2-7756-4c41-9e89-f2f9131154af",
+        "title": "Dairy Free"
+      },
+      {
+        "id": "925b3cee-7aab-45fb-80c9-8d5ba26b8a57",
+        "title": "Fish"
+      }
+    ],
+    "category": {
+      "id": "2dc5bb9d-6840-4d0d-be0e-abf08b9d0e99",
+      "title": "Lunch"
+    },
+    "image": "cod.avif"
+  }
+]
