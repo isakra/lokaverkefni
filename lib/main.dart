@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:uuid/uuid.dart';
+import 'package:universal_io/io.dart';
 
 void main() {
   runApp(const MyApp());
@@ -106,6 +107,7 @@ class Recipe {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -145,10 +147,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         Category category =
             Category(item['category']['id'], item['category']['title']);
         List<Ingredient> ingredients =
-            item['ingredients'].map<Ingredient>((ingredient) {
+            (item['ingredients'] as List).map((ingredient) {
           return Ingredient(ingredient['id'], ingredient['title']);
         }).toList();
-        List<Tag> tags = item['tags'].map<Tag>((tag) {
+        List<Tag> tags = (item['tags'] as List).map((tag) {
           return Tag(tag['id'], tag['title']);
         }).toList();
         final cookingTime = item['cookingTime'];
@@ -215,10 +217,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '',
-                          style: TextStyle(fontSize: 20),
-                        ),
+                        if (item.image.isNotEmpty)
+                          Image.asset(
+                            'assets/images/${item.image}',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
