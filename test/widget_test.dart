@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:your_flutter_project/main.dart';
 
 void main() {
   testWidgets('Recipe list displays correctly', (WidgetTester tester) async {
     // Build the app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp() as Widget);
 
     // Verify that the main screen title is displayed.
     expect(find.text('Recipes'), findsOneWidget);
@@ -22,7 +21,7 @@ void main() {
   testWidgets('Add Recipe button navigates to AddRecipeScreen',
       (WidgetTester tester) async {
     // Build the app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp() as Widget);
 
     // Tap the 'Add Recipe' button.
     final addRecipeButtonFinder =
@@ -40,7 +39,7 @@ void main() {
   testWidgets('Search functionality filters recipe list',
       (WidgetTester tester) async {
     // Build the app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp() as Widget);
 
     // Load the recipes from the JSON file (you can mock this for testing).
     await tester.pumpAndSettle(); // Wait for async operations to complete.
@@ -56,7 +55,7 @@ void main() {
   testWidgets('Timer button sets a timer and shows alert',
       (WidgetTester tester) async {
     // Build the app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp() as Widget);
 
     // Load the recipes from the JSON file (you can mock this for testing).
     await tester.pumpAndSettle(); // Wait for async operations to complete.
@@ -79,4 +78,8 @@ void main() {
     expect(find.text('Timer'), findsOneWidget);
     expect(find.text('Cooking time for Pancakes is up!'), findsOneWidget);
   });
+}
+
+class MyApp {
+  const MyApp();
 }
