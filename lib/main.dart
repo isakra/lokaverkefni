@@ -1,7 +1,9 @@
 import 'dart:convert';
-import 'package:universal_io/io.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'package:uuid/uuid.dart';
 
 void main() {
@@ -70,9 +72,10 @@ class Recipe {
   List<Tag> tags;
   Category category;
   String instructions;
+  int cookingTime;
 
   Recipe(this.id, this.title, this.image, this.instructions, this.ingredients,
-      this.tags, this.category);
+      this.tags, this.category, this.cookingTime);
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
@@ -80,9 +83,10 @@ class Recipe {
       json['title'],
       json['image'],
       json['instructions'],
-      json['ingredients'],
-      json['tags'],
-      json['category'],
+      (json['ingredients'] as List).map((e) => Ingredient.fromJson(e)).toList(),
+      (json['tags'] as List).map((e) => Tag.fromJson(e)).toList(),
+      Category.fromJson(json['category']),
+      json['cookingTime'],
     );
   }
 
@@ -92,10 +96,10 @@ class Recipe {
       'title': title,
       'image': image,
       'instructions': instructions,
-      'ingredients':
-          ingredients.map((ingredient) => ingredient.toJson()).toList(),
-      'tags': tags.map((tag) => tag.toJson()).toList(),
+      'ingredients': ingredients.map((e) => e.toJson()).toList(),
+      'tags': tags.map((e) => e.toJson()).toList(),
       'category': category.toJson(),
+      'cookingTime': cookingTime,
     };
   }
 }
@@ -125,6 +129,8 @@ class RecipesScreen extends StatefulWidget {
 
 class _RecipesScreenState extends State<RecipesScreen> {
   final List<Recipe> _recipes = [];
+  List<Recipe> _filteredRecipes = [];
+  String _searchQuery = '';
 
   Future<void> _loadRecipes() async {
     print('Loading recipes');
@@ -145,30 +151,42 @@ class _RecipesScreenState extends State<RecipesScreen> {
         List<Tag> tags = item['tags'].map<Tag>((tag) {
           return Tag(tag['id'], tag['title']);
         }).toList();
+        final cookingTime = item['cookingTime'];
 
-        Recipe recipe =
-            Recipe(id, title, image, instructions, ingredients, tags, category);
+        Recipe recipe = Recipe(id, title, image, instructions, ingredients,
+            tags, category, cookingTime);
         _recipes.add(recipe);
       } catch (e) {
         print(e);
       }
     }
 
-    setState(() {});
+    setState(() {
+      _filteredRecipes = _recipes;
+    });
 
     print('Recipes loaded');
+  }
+
+  void _filterRecipes(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (_searchQuery.isEmpty) {
+        _filteredRecipes = _recipes;
+      } else {
+        _filteredRecipes = _recipes.where((recipe) {
+          return recipe.title.toLowerCase().contains(query.toLowerCase()) ||
+              recipe.ingredients.any((ingredient) =>
+                  ingredient.title.toLowerCase().contains(query.toLowerCase()));
+        }).toList();
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _loadRecipes();
-  }
-
-  void printRecipes() {
-    for (var recipe in _recipes) {
-      print(recipe.title);
-    }
   }
 
   @override
@@ -182,9 +200,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: _filterRecipes,
+            ),
             Expanded(
               child: ListView(
-                children: _recipes.map((item) {
+                children: _filteredRecipes.map((item) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
@@ -225,7 +250,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    // pass recipe list to AddRecipeScreen
                     builder: (context) => const AddRecipeScreen(),
                   ),
                 );
@@ -253,30 +277,60 @@ class RecipeDetailsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.asset('/assets/images/${recipe.image}'),
-            const SizedBox(height: 10),
-            const Text(
-              'Ingredients',
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: recipe.ingredients.map((ingredient) {
-                return Text(ingredient.title);
-              }).toList(),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Instructions',
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 10),
-            Text(recipe.instructions),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (recipe.image.isNotEmpty)
+                Image.asset('assets/images/${recipe.image}'),
+              const SizedBox(height: 10),
+              const Text(
+                'Ingredients',
+                style: TextStyle(fontSize: 20),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: recipe.ingredients.map((ingredient) {
+                  return Text(ingredient.title);
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Instructions',
+                style: TextStyle(fontSize: 20),
+              ),
+              const SizedBox(height: 10),
+              Text(recipe.instructions),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  int cookingTime = recipe.cookingTime;
+                  Timer(Duration(minutes: cookingTime), () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Timer'),
+                          content:
+                              Text('Cooking time for ${recipe.title} is up!'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  });
+                },
+                child: Text('Start Timer (${recipe.cookingTime} minutes)'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -301,9 +355,11 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   String _title = '';
   String _image = '';
   String _instructions = '';
+  int _cookingTime = 0;
   late TextEditingController _titleController;
   late TextEditingController _imageController;
   late TextEditingController _instructionsController;
+  late TextEditingController _cookingTimeController;
 
   var uuid = const Uuid();
 
@@ -379,12 +435,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     _titleController = TextEditingController(text: _title);
     _imageController = TextEditingController(text: _image);
     _instructionsController = TextEditingController(text: _instructions);
-  }
-
-  void printRecipes() {
-    for (var recipe in _recipes) {
-      print(recipe.title);
-    }
+    _cookingTimeController =
+        TextEditingController(text: _cookingTime.toString());
   }
 
   @override
@@ -392,22 +444,47 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     _titleController.dispose();
     _imageController.dispose();
     _instructionsController.dispose();
+    _cookingTimeController.dispose();
     super.dispose();
   }
 
-  void _addRecipe() {
+  Future<String> _getLocalPath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<File> _getLocalFile() async {
+    final path = await _getLocalPath();
+    return File('$path/recipes.json');
+  }
+
+  void _addRecipe() async {
     try {
       var id = const Uuid().v4();
 
+      final newRecipe = Recipe(
+          id,
+          _title,
+          _image,
+          _instructions,
+          _selectedIngredients,
+          _selectedTags,
+          _selectedCategory!,
+          _cookingTime);
+
+      _recipes.add(newRecipe);
+
       try {
-        final recipe = Recipe(id, _title, _image, _instructions,
-                _selectedIngredients, _selectedTags, _selectedCategory!)
-            .toJson();
-
-        final file = File(
-            '/assets/data/recipes.json'); // Replace with the actual path to your JSON file
-
-        file.writeAsStringSync('$recipe\n', mode: FileMode.append);
+        final file = await _getLocalFile();
+        List<Recipe> currentRecipes = [];
+        if (file.existsSync()) {
+          String jsonString = await file.readAsString();
+          List<dynamic> json = jsonDecode(jsonString);
+          currentRecipes = json.map((e) => Recipe.fromJson(e)).toList();
+        }
+        currentRecipes.add(newRecipe);
+        await file.writeAsString(
+            jsonEncode(currentRecipes.map((e) => e.toJson()).toList()));
       } catch (e) {
         print(e);
         print('Failed to write to json file');
@@ -417,9 +494,11 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         _titleController.clear();
         _imageController.clear();
         _instructionsController.clear();
+        _cookingTimeController.clear();
         _title = '';
         _image = '';
         _instructions = '';
+        _cookingTime = 0;
         _selectedCategory = null;
         _selectedIngredients.clear();
         _selectedTags.clear();
@@ -473,6 +552,16 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                     });
                   },
                   controller: _instructionsController,
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                      labelText: 'Cooking Time (minutes)'),
+                  onChanged: (text) {
+                    setState(() {
+                      _cookingTime = int.tryParse(text) ?? 0;
+                    });
+                  },
+                  controller: _cookingTimeController,
                 ),
                 DropdownButton<Category>(
                   value: _selectedCategory,

@@ -1,66 +1,22 @@
 [
-  {
-    "id": "078b68d6-c2d7-4914-9c6e-8ca1558f8bf2",
-    "title": "Tomato"
-  },
-  {
-    "id": "b4141533-7719-456f-b170-0f83bcc26944",
-    "title": "Potato"
-  },
-  {
-    "id": "d2d50ac5-2b12-47b2-abb9-4298ea3b4450",
-    "title": "Onion"
-  },
-  {
-    "id": "a362b2ba-febd-48b4-8ae4-74e9a8399d6",
-    "title": "Cheese"
-  },
-  {
-    "id": "5f8c5544-25cd-4e18-aa02-4925ea724b46",
-    "title": "Rice"
-  },
-  {
-    "id": "99e31a05-3f00-42ec-9df8-4f27944bb8f0",
-    "title": "Lemon"
-  },
-  {
-    "id": "5c76fd66-24bb-495f-9d65-488921ac7a90",
-    "title": "Bread"
-  },
-  {
-    "id": "380dc7c9-f9a7-40ba-b82d-96eb42cfc11d",
-    "title": "Carrot"
-  },
-  {
-    "id": "70c11060-6dd2-4576-8ebd-88fbe86512de",
-    "title": "Broccoli"
-  },
-  {
-    "id": "029fa47b-9c9c-41be-b330-97d9c447aa49",
-    "title": "Lettuce"
-  },
-  {
-    "id": "092b865e-d3d1-48ee-83b9-77d9d552df51",
-    "title": "Garlic"
-  },
-  {
-    "id": "51ab875f-cfe8-47bb-96da-1319dbbbb82b",
-    "title": "Chicken"
-  },
-  {
-    "id": "af3fb195-32d6-4d5e-8314-be4c21cc088d",
-    "title": "Beef"
-  },
-  {
-    "id": "c7bf5d55-348e-43a1-9bce-00414caf31aa",
-    "title": "Pork"
-  },
-  {
-    "id": "27ec3184-deaa-4822-b5b5-f5fa86982cd7",
-    "title": "Fish"
-  },
-  {
-    "id": "ac2462e6-dc7f-4f8e-adbb-740f30faf8a6",
-    "title": "Lamb"
-  }
+  { "id": "1", "title": "Flour" },
+  { "id": "2", "title": "Sugar" },
+  { "id": "3", "title": "Eggs" },
+  { "id": "4", "title": "Butter" },
+  { "id": "5", "title": "Milk" },
+  { "id": "6", "title": "Salt" },
+  { "id": "7", "title": "Baking Powder" },
+  { "id": "8", "title": "Vanilla Extract" },
+  { "id": "9", "title": "Olive Oil" },
+  { "id": "10", "title": "Chicken Breast" },
+  { "id": "11", "title": "Garlic" },
+  { "id": "12", "title": "Onion" },
+  { "id": "13", "title": "Tomato" },
+  { "id": "14", "title": "Cheese" },
+  { "id": "15", "title": "Spinach" },
+  { "id": "16", "title": "Carrot" },
+  { "id": "17", "title": "Bell Pepper" },
+  { "id": "18", "title": "Mushroom" },
+  { "id": "19", "title": "Broccoli" },
+  { "id": "20", "title": "Rice" }
 ]
